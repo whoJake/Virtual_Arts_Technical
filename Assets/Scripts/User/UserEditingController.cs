@@ -17,6 +17,8 @@ public class UserEditingController : MonoBehaviour
     [SerializeField]
     private Material objectInvalidMaterial;
 
+    private Vector3 currentScaleSelection = Vector3.one;
+
     public SelectPrimitive hotbarSelection;
     private EditablePrimative currentSelection;
     private EditablePrimative currentPreview;
@@ -37,7 +39,11 @@ public class UserEditingController : MonoBehaviour
         bool leftClicked = Input.GetMouseButtonDown(0);
         bool rightClicked = Input.GetMouseButtonDown(1);
 
+        bool scaleUp = Input.GetKey(KeyCode.E);
+        bool scaleDown = Input.GetKey(KeyCode.Q);
+
         if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, 25f, ~LayerMask.GetMask("Ignore Raycast"))) {
+
             //Need to create a preview
             if(!currentPreview && !currentSelection) {
                 switch (hotbarSelection) {
@@ -59,8 +65,15 @@ public class UserEditingController : MonoBehaviour
 
             //Preview is present
             if (currentPreview) {
-                currentPreview.PlaceOnSurface(hit.point, hit.normal, ignoreValidity);
+                if (scaleUp) {
+                    currentScaleSelection += Vector3.one * Time.deltaTime;
+                }
+                if (scaleDown) {
+                    currentScaleSelection -= Vector3.one * Time.deltaTime;
+                }
+                currentPreview.transform.localScale = currentScaleSelection;
 
+                currentPreview.PlaceOnSurface(hit.point, hit.normal, ignoreValidity);
                 if (rightClicked) {
                     PlacePreview();
                 }

@@ -12,16 +12,12 @@ public class EditableCube : EditablePrimative {
         if(!igoreValidity) UpdateValidity();
     }
 
-    private void UpdateValidity() {
+    protected override void UpdateValidity() {
         isValid = !Physics.CheckBox(transform.position, transform.localScale / 2f, transform.rotation, ~LayerMask.GetMask("IgnoreValidityCheck"));
         GetComponent<MeshRenderer>().sharedMaterial = isValid ? validMaterial : invalidMaterial;
     }
 
     public override void Delete() {
-        throw new System.NotImplementedException();
-    }
-
-    public override void Scale() {
         throw new System.NotImplementedException();
     }
 }
