@@ -13,9 +13,9 @@ TagManager:
   - Water
   - UI
   - IgnoreValidityCheck
-  - 
-  - 
-  - 
+  - Overlay
+  - Scaler
+  - IgnoreAll
   - 
   - 
   - 

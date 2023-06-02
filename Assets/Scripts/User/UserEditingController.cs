@@ -20,7 +20,8 @@ public class UserEditingController : MonoBehaviour
     [SerializeField]
     private Material objectSelectedMaterial;
 
-    private Vector3 currentScaleSelection = Vector3.one;
+    [SerializeField]
+    private ScaleObjectController scaleObjectController;
 
     private bool movingSelection;
     private bool isDraggingOutObject;
@@ -53,12 +54,14 @@ public class UserEditingController : MonoBehaviour
         }
         obj.Select();
         currentSelection = obj;
+        scaleObjectController.SelectObjectToControl(currentSelection);
     }
 
     void DeselectSelection() {
         if (currentSelection)
             currentSelection.Deselect();
         currentSelection = null;
+        scaleObjectController.SelectObjectToControl(null);
     }
 
     void MoveSelection(RaycastHit hit) {
@@ -125,12 +128,13 @@ public class UserEditingController : MonoBehaviour
                 if (!currentSelection.IsValid) {
                     Destroy(currentSelection.gameObject);
                     currentSelection = null;
+                    scaleObjectController.SelectObjectToControl(null);
                 } else {
                     DeselectSelection();
                 }
             } else {
                 Ray dragRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if(Physics.Raycast(dragRay, out RaycastHit draghit, 25f, ~LayerMask.GetMask("Ignore Raycast"))) {
+                if(Physics.Raycast(dragRay, out RaycastHit draghit, 25f, ~LayerMask.GetMask("Ignore Raycast", "Overlay", "Scaler"))) {
                     MoveSelection(draghit);
                 }
             }
@@ -140,20 +144,20 @@ public class UserEditingController : MonoBehaviour
             if (currentSelection) {
                 Destroy(currentSelection.gameObject);
                 currentSelection = null;
+                scaleObjectController.SelectObjectToControl(null);
             }
         }
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if(Physics.Raycast(ray, out RaycastHit hit, 25f, ~LayerMask.GetMask("Ignore Raycast"))) {
-            if(leftClicked && cursorLocked) {
-                if (movingSelection) { }
-                else if (hit.transform.CompareTag("EditableObject")) {
+        if (Physics.Raycast(ray, out RaycastHit hit0, 50f, LayerMask.GetMask("Scaler"))) { }
+        else if (Physics.Raycast(ray, out RaycastHit hit, 50f, ~LayerMask.GetMask("Ignore Raycast", "Overlay", "Scaler"))) {
+            if (leftClicked && cursorLocked) {
+                if (movingSelection) { } else if (hit.transform.CompareTag("EditableObject")) {
                     EditablePrimitive hitObject = hit.transform.GetComponent<EditablePrimitive>();
                     if (hitObject == currentSelection) {
                         DeselectSelection();
                     } else {
                         SelectObject(hitObject);
-                        currentScaleSelection = currentSelection.transform.localScale;
                     }
                 } else {
                     DeselectSelection();
@@ -169,26 +173,15 @@ public class UserEditingController : MonoBehaviour
 
             //Preview is present
             if (currentSelection) {
-                if (scaleUp) {
-                    currentScaleSelection += Vector3.one * Time.deltaTime;
-                }
-                if (scaleDown) {
-                    currentScaleSelection -= Vector3.one * Time.deltaTime;
-                }
-                currentSelection.transform.localScale = currentScaleSelection;
-                //currentSelection.Place(currentSelection.transform.position, ignoreValidity);
-
                 if (rightHeld && cursorLocked) {
                     MoveSelection(hit);
-                } else if(!rightHeld && cursorLocked) {
+                } else if (!rightHeld && cursorLocked) {
                     FinishMove();
                 }
-                
-
             }
-
+        }else if (leftClicked && !isDraggingOutObject) {
+            DeselectSelection();
         }
-
     }
 
     public enum SelectPrimitive {

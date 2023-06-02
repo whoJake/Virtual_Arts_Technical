@@ -20,6 +20,12 @@ public abstract class EditablePrimitive : MonoBehaviour
     public abstract void PlaceOnSurface(Vector3 point, Vector3 normal, bool ignoreValidity);
 
 
+    private void Update() {
+        if (isSelected) {
+            //Show scale editing controls
+        }
+    }
+
     public void Place(Vector3 point, bool ignoreValidity) {
         transform.position = point;
         if (!ignoreValidity) UpdateValidity();
