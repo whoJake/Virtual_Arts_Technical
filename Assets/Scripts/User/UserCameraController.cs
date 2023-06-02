@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class UserCameraController : MonoBehaviour
 {
-    private Transform m_Camera;
-    private Vector2 m_LookDirection;
+    private Transform affectedTransform;
+    private Vector2 lookDirection;
 
     [SerializeField]
     private Vector2 mouseSensitivity;
@@ -17,7 +17,7 @@ public class UserCameraController : MonoBehaviour
 
     private void Start() {
         Cursor.lockState = CursorLockMode.Locked;
-        m_Camera = transform;
+        affectedTransform = transform;
     }
 
     private void LateUpdate() {
@@ -25,13 +25,13 @@ public class UserCameraController : MonoBehaviour
 
         Vector2 mouseMovement = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
 
-        m_LookDirection.x = (m_LookDirection.x + mouseMovement.x * mouseSensitivity.x) % 360;
-        m_LookDirection.y = Mathf.Clamp((m_LookDirection.y + mouseMovement.y * mouseSensitivity.y), minMaxLookHeight.x - 90f, minMaxLookHeight.y - 90f);
+        lookDirection.x = (lookDirection.x + mouseMovement.x * mouseSensitivity.x) % 360;
+        lookDirection.y = Mathf.Clamp((lookDirection.y + mouseMovement.y * mouseSensitivity.y), minMaxLookHeight.x - 90f, minMaxLookHeight.y - 90f);
 
-        Vector3 eulerLookRotation = new Vector3(m_LookDirection.y, m_LookDirection.x, 0);
+        Vector3 eulerLookRotation = new Vector3(lookDirection.y, lookDirection.x, 0);
         eulerLookRotation.x *= invertYAxis ? 1 : -1;
 
-        m_Camera.localRotation = Quaternion.Euler(eulerLookRotation);
+        affectedTransform.localRotation = Quaternion.Euler(eulerLookRotation);
     }
 
 }

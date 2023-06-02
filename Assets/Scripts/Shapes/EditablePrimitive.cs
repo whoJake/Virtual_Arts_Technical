@@ -4,15 +4,26 @@ using UnityEngine;
 
 public abstract class EditablePrimative : MonoBehaviour
 {
-    protected bool isSelected;
-    public bool IsSelected { get { return isSelected; } }
-
     protected bool isValid;
     public bool IsValid { get { return isValid; } }
 
-    public abstract void PlaceOnSurface(Vector3 point, Vector3 normal);
-    public abstract void Place();
+    protected Material validMaterial;
+    protected Material invalidMaterial;
+
+    protected Transform lastPlaceState;
+
+    public abstract void PlaceOnSurface(Vector3 point, Vector3 normal, bool ignoreValidity);
+    public void Select() {
+        lastPlaceState = transform;
+    }
+    public void Place() {
+        lastPlaceState = transform;
+    }
     public abstract void Scale();
     public abstract void Delete();
-    public abstract void SetMaterial(Material material);
+
+    public void SetMaterials(Material validMat, Material invalidMat) {
+        validMaterial = validMat;
+        invalidMaterial = invalidMat;
+    }
 }

@@ -9,32 +9,72 @@ public class UserEditingController : MonoBehaviour
     private Transform creationParent;
 
     [SerializeField]
+    private bool ignoreValidity;
+
+    [SerializeField]
     private Material objectValidMaterial;
 
     [SerializeField]
     private Material objectInvalidMaterial;
 
+    public SelectPrimitive hotbarSelection;
+    private EditablePrimative currentSelection;
+    private EditablePrimative currentPreview;
+
+    void PlacePreview() {
+        if (currentPreview.IsValid || ignoreValidity) {
+            currentPreview.gameObject.layer = LayerMask.NameToLayer("Default");
+            currentPreview.GetComponent<Collider>().enabled = true;
+            currentPreview = null;
+        } else {
+            Debug.Log("Place position is invalid");
+        }
+    }
+
     void Update()
     {
         if (Cursor.lockState != CursorLockMode.Locked) return;
-
         bool leftClicked = Input.GetMouseButtonDown(0);
         bool rightClicked = Input.GetMouseButtonDown(1);
 
-        Ray targetRay = new Ray(transform.position, transform.forward);
-        if (leftClicked) {
-
-            EditablePrimative creation;
-            if(Physics.Raycast(targetRay, out RaycastHit hit, 50f)) {
-                GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                obj.transform.parent = creationParent;
-                creation = obj.AddComponent<EditableCube>();
-                creation.PlaceOnSurface(hit.point, hit.normal);
-                creation.SetMaterial(creation.IsValid ? objectValidMaterial : objectInvalidMaterial);
+        if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, 25f, ~LayerMask.GetMask("Ignore Raycast"))) {
+            //Need to create a preview
+            if(!currentPreview && !currentSelection) {
+                switch (hotbarSelection) {
+                    case SelectPrimitive.None:
+                        break;
+                    case SelectPrimitive.Cube:
+                        Debug.Log("made new preview");
+                        GameObject temp = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        temp.transform.parent = creationParent;
+                        temp.layer = LayerMask.NameToLayer("Ignore Raycast");
+                        temp.GetComponent<Collider>().enabled = false;
+                        currentPreview = temp.AddComponent<EditableCube>();
+                        currentPreview.SetMaterials(objectValidMaterial, objectInvalidMaterial);
+                        break;
+                    case SelectPrimitive.Sphere:
+                        break;
+                }
             }
 
-            Debug.DrawRay(targetRay.origin, targetRay.direction * 50, Color.red, 2f);
+            //Preview is present
+            if (currentPreview) {
+                currentPreview.PlaceOnSurface(hit.point, hit.normal, ignoreValidity);
+
+                if (rightClicked) {
+                    PlacePreview();
+                }
+
+            }
+
         }
 
     }
+
+    public enum SelectPrimitive {
+        None,
+        Cube,
+        Sphere
+    }
+
 }
