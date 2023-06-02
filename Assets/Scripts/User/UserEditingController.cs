@@ -23,11 +23,29 @@ public class UserEditingController : MonoBehaviour
     private Vector3 currentScaleSelection = Vector3.one;
 
     private bool movingSelection;
+    private bool isDraggingOutObject;
 
     public SelectPrimitive hotbarSelection;
 
     [SerializeField]
     private EditablePrimitive currentSelection;
+
+    public void DragOutObject(string type) {
+        SelectPrimitive hotbar = SelectPrimitive.None;
+        switch (type) {
+            case "Cube":
+                hotbar = SelectPrimitive.Cube;
+                break;
+            case "Sphere":
+                hotbar = SelectPrimitive.Sphere;
+                break;
+        }
+
+        EditablePrimitive obj = CreateNewObject();
+        SelectObject(obj);
+        hotbarSelection = hotbar;
+        isDraggingOutObject = true;
+    }
 
     void SelectObject(EditablePrimitive obj) {
         if (currentSelection) {
@@ -83,24 +101,51 @@ public class UserEditingController : MonoBehaviour
 
     void Update()
     {
-        if (Cursor.lockState != CursorLockMode.Locked) return;
+        if (Input.GetKey(KeyCode.R) || isDraggingOutObject) {
+            Cursor.lockState = CursorLockMode.None;
+        } else {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+
+        bool cursorLocked = Cursor.lockState == CursorLockMode.Locked;
+
         bool leftClicked = Input.GetMouseButtonDown(0);
         bool rightClicked = Input.GetMouseButtonDown(1);
 
+        bool leftHeld = Input.GetMouseButton(0);
         bool rightHeld = Input.GetMouseButton(1);
 
         bool scaleUp = Input.GetKey(KeyCode.E);
         bool scaleDown = Input.GetKey(KeyCode.Q);
 
-        if (Input.GetKeyDown(KeyCode.Delete)) {
+        if (isDraggingOutObject) {
+            if (!leftHeld) {
+                FinishMove();
+                isDraggingOutObject = false;
+                if (!currentSelection.IsValid) {
+                    Destroy(currentSelection.gameObject);
+                    currentSelection = null;
+                } else {
+                    DeselectSelection();
+                }
+            } else {
+                Ray dragRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if(Physics.Raycast(dragRay, out RaycastHit draghit, 25f, ~LayerMask.GetMask("Ignore Raycast"))) {
+                    MoveSelection(draghit);
+                }
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Delete) && cursorLocked) {
             if (currentSelection) {
                 Destroy(currentSelection.gameObject);
                 currentSelection = null;
             }
         }
 
-        if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, 25f, ~LayerMask.GetMask("Ignore Raycast"))) {
-            if(leftClicked) {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if(Physics.Raycast(ray, out RaycastHit hit, 25f, ~LayerMask.GetMask("Ignore Raycast"))) {
+            if(leftClicked && cursorLocked) {
                 if (movingSelection) { }
                 else if (hit.transform.CompareTag("EditableObject")) {
                     EditablePrimitive hitObject = hit.transform.GetComponent<EditablePrimitive>();
@@ -108,6 +153,7 @@ public class UserEditingController : MonoBehaviour
                         DeselectSelection();
                     } else {
                         SelectObject(hitObject);
+                        currentScaleSelection = currentSelection.transform.localScale;
                     }
                 } else {
                     DeselectSelection();
@@ -132,9 +178,9 @@ public class UserEditingController : MonoBehaviour
                 currentSelection.transform.localScale = currentScaleSelection;
                 //currentSelection.Place(currentSelection.transform.position, ignoreValidity);
 
-                if (rightHeld) {
+                if (rightHeld && cursorLocked) {
                     MoveSelection(hit);
-                } else {
+                } else if(!rightHeld && cursorLocked) {
                     FinishMove();
                 }
                 
