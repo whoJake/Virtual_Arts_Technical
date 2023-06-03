@@ -50,36 +50,39 @@ public class UserEditingController : MonoBehaviour
 
     void SelectObject(EditablePrimitive obj) {
         if (currentSelection) {
+            if (!currentSelection.IsValid) return;
+
             currentSelection.Deselect();
         }
+
         obj.Select();
         currentSelection = obj;
         scaleObjectController.SelectObjectToControl(currentSelection);
     }
 
     void DeselectSelection() {
-        if (currentSelection)
+        Debug.Log("Tried to deselect");
+        Debug.Log("is valid : " + currentSelection.IsValid + " collider enabled: " + currentSelection.GetComponent<Collider>().enabled + " is moving: " + currentSelection.isMoving);
+        if (currentSelection) {
+            if (!currentSelection.IsValid) return;
+            Debug.Log("Deselecting");
+
             currentSelection.Deselect();
-        currentSelection = null;
-        scaleObjectController.SelectObjectToControl(null);
+            currentSelection = null;
+            scaleObjectController.SelectObjectToControl(null);
+        }
     }
 
     void MoveSelection(RaycastHit hit) {
-        currentSelection.SetIsMoving(true);
         movingSelection = true;
         currentSelection.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
-        currentSelection.GetComponent<Collider>().enabled = false;
         currentSelection.PlaceOnSurface(hit.point, hit.normal, ignoreValidity);
     }
 
     void FinishMove() {
         if (currentSelection.IsValid || ignoreValidity) {
             currentSelection.gameObject.layer = LayerMask.NameToLayer("Default");
-            currentSelection.GetComponent<Collider>().enabled = true;
-            currentSelection.SetIsMoving(false);
             movingSelection = false;
-        } else {
-            Debug.Log("Place position is invalid");
         }
     }
 
@@ -102,8 +105,7 @@ public class UserEditingController : MonoBehaviour
         }
     }
 
-    void Update()
-    {
+    void Update() {
         if (Input.GetKey(KeyCode.R) || isDraggingOutObject) {
             Cursor.lockState = CursorLockMode.None;
         } else {
@@ -118,9 +120,6 @@ public class UserEditingController : MonoBehaviour
         bool leftHeld = Input.GetMouseButton(0);
         bool rightHeld = Input.GetMouseButton(1);
 
-        bool scaleUp = Input.GetKey(KeyCode.E);
-        bool scaleDown = Input.GetKey(KeyCode.Q);
-
         if (isDraggingOutObject) {
             if (!leftHeld) {
                 FinishMove();
@@ -134,11 +133,13 @@ public class UserEditingController : MonoBehaviour
                 }
             } else {
                 Ray dragRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if(Physics.Raycast(dragRay, out RaycastHit draghit, 25f, ~LayerMask.GetMask("Ignore Raycast", "Overlay", "Scaler"))) {
+                if (Physics.Raycast(dragRay, out RaycastHit draghit, 25f, ~LayerMask.GetMask("Ignore Raycast", "Overlay", "Scaler"))) {
                     MoveSelection(draghit);
                 }
             }
         }
+        //Already accounted for dragging out action so can leave from here
+        if (!cursorLocked) return;
 
         if (Input.GetKeyDown(KeyCode.Delete) && cursorLocked) {
             if (currentSelection) {
@@ -149,39 +150,35 @@ public class UserEditingController : MonoBehaviour
         }
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit0, 50f, LayerMask.GetMask("Scaler"))) { }
-        else if (Physics.Raycast(ray, out RaycastHit hit, 50f, ~LayerMask.GetMask("Ignore Raycast", "Overlay", "Scaler"))) {
-            if (leftClicked && cursorLocked) {
-                if (movingSelection) { } else if (hit.transform.CompareTag("EditableObject")) {
-                    EditablePrimitive hitObject = hit.transform.GetComponent<EditablePrimitive>();
-                    if (hitObject == currentSelection) {
-                        DeselectSelection();
-                    } else {
-                        SelectObject(hitObject);
-                    }
+        bool hitActiveObject = Physics.Raycast(ray, out RaycastHit activeHit, 50f, ~LayerMask.GetMask("Ignore Raycast", "Overlay", "Scaler"));
+        bool hitScalarAxis = Physics.Raycast(ray, out _, 75f, LayerMask.GetMask("Scaler"));
+
+        EditablePrimitive hitEditable = null;
+        bool hasHitEditable = hitActiveObject ? activeHit.transform.TryGetComponent(out hitEditable) : false;
+
+        //When an item is selected
+        if (currentSelection) {
+            if (rightHeld && hitActiveObject) {
+                MoveSelection(activeHit);
+            } else if (!rightHeld) {
+                FinishMove();
+            }
+
+            if (leftClicked && !hitScalarAxis) {
+                if (hitEditable == currentSelection) {
+                    DeselectSelection();
+                }else if (hasHitEditable) {
+                    SelectObject(hitEditable);
                 } else {
                     DeselectSelection();
                 }
             }
-
-            if (Input.GetKeyDown(KeyCode.F)) {
-                EditablePrimitive obj = CreateNewObject();
-                SelectObject(obj);
-                MoveSelection(hit);
-                FinishMove();
+        } else {
+            if (leftClicked && hasHitEditable) {
+                SelectObject(hitEditable);
             }
-
-            //Preview is present
-            if (currentSelection) {
-                if (rightHeld && cursorLocked) {
-                    MoveSelection(hit);
-                } else if (!rightHeld && cursorLocked) {
-                    FinishMove();
-                }
-            }
-        }else if (leftClicked && !isDraggingOutObject) {
-            DeselectSelection();
         }
+        
     }
 
     public enum SelectPrimitive {

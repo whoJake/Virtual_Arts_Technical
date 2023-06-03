@@ -16,32 +16,20 @@ public abstract class EditablePrimitive : MonoBehaviour
 
     protected Transform lastPlaceState;
 
-    protected abstract void UpdateValidity();
+    public abstract void UpdateValidity();
     public abstract void PlaceOnSurface(Vector3 point, Vector3 normal, bool ignoreValidity);
-
-
-    private void Update() {
-        if (isSelected) {
-            //Show scale editing controls
-        }
-    }
 
     public void Place(Vector3 point, bool ignoreValidity) {
         transform.position = point;
         if (!ignoreValidity) UpdateValidity();
     }
 
-    public void Scale(Vector3 newScale, bool ignoreValidity) {
-        transform.localScale = newScale;
-        if (!ignoreValidity) UpdateValidity();
-    }
-
     protected void UpdateMaterial() {
         Material activeMaterial;
-        if (isMoving) {
-            activeMaterial = isValid ? validMaterial : invalidMaterial;
+        if (isSelected) {
+            activeMaterial = isValid ? selectedMaterial : invalidMaterial;
         } else {
-            activeMaterial = isSelected ? selectedMaterial : validMaterial;
+            activeMaterial = isValid ? validMaterial : invalidMaterial;
         }
 
         GetComponent<MeshRenderer>().sharedMaterial = activeMaterial;
@@ -54,11 +42,6 @@ public abstract class EditablePrimitive : MonoBehaviour
 
     public void Deselect() {
         isSelected = false;
-        UpdateMaterial();
-    }
-
-    public void SetIsMoving(bool _isMoving) {
-        isMoving = _isMoving;
         UpdateMaterial();
     }
 

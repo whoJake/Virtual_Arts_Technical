@@ -15,7 +15,7 @@ public class ScaleObjectController : MonoBehaviour {
     Transform posXDrag, posYDrag, posZDrag;
     Transform negXDrag, negYDrag, negZDrag;
 
-    bool changeHeld;
+    public bool changeHeld;
     Axis axisHeld;
     float dir;
     Transform heldPoint;
@@ -113,7 +113,9 @@ public class ScaleObjectController : MonoBehaviour {
             Vector3 start = controlling.transform.position;
             Vector3 end = heldPoint.position;
             Vector3 startEnd = end - start;
-            Vector3 heldEndOfRay = ray.origin + ray.direction * Vector3.Distance(Camera.main.transform.position, end);
+
+            float distanceToCheck = Mathf.Min(Vector3.Distance(Camera.main.transform.position, end), 75f);
+            Vector3 heldEndOfRay = ray.origin + ray.direction * distanceToCheck;
 
             float scalar = Vector3.Dot(heldEndOfRay - start, startEnd) / Vector3.Dot(startEnd, startEnd);
 
@@ -139,10 +141,10 @@ public class ScaleObjectController : MonoBehaviour {
                     break;
             }
             controlling.transform.localScale = scale;
-            //Collision checks need to happen
+            controlling.UpdateValidity();
 
             if (Input.GetMouseButtonUp(0)) {
-                changeHeld = false;
+                 changeHeld = false;
             }
         }
         else if (Physics.Raycast(ray, out RaycastHit hit, 50f, LayerMask.GetMask("Scaler"))) {
@@ -154,7 +156,7 @@ public class ScaleObjectController : MonoBehaviour {
             }
         }
 
-        float axisScale = Mathf.Max(Mathf.Min(controlling.transform.localScale.x, controlling.transform.localScale.y, controlling.transform.localScale.z, 10f), 0.5f) / 10f;
+        float axisScale = Mathf.Clamp(Mathf.Min(controlling.transform.localScale.x, controlling.transform.localScale.y, controlling.transform.localScale.z), 1f, 3f) / 10f;
         UpdateAxisVisual(Axis.X, axisScale);
         UpdateAxisVisual(Axis.Y, axisScale);
         UpdateAxisVisual(Axis.Z, axisScale);
