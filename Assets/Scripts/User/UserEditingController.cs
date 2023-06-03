@@ -37,6 +37,8 @@ public class UserEditingController : MonoBehaviour
 
     private bool isDraggingOutObject;
 
+    private GameObject clipboardObject;
+
     private SelectPrimitive hotbarSelection;
 
     [SerializeField]
@@ -59,6 +61,23 @@ public class UserEditingController : MonoBehaviour
             currentSelection = null;
             scaleObjectController.SelectObjectToControl(null);
         }
+    }
+
+    public void CopySelected() {
+        if (!currentSelection) return;
+        clipboardObject = currentSelection.gameObject;
+    }
+
+    public void PasteClipboard() {
+        if (!clipboardObject) return;
+        if (currentSelection && !currentSelection.IsValid) return;
+
+        GameObject clone = Instantiate(clipboardObject, clipboardObject.transform.position + (clipboardObject.transform.localScale / 2f), clipboardObject.transform.rotation, clipboardObject.transform.parent);
+        EditablePrimitive old = clipboardObject.GetComponent<EditablePrimitive>();
+        EditablePrimitive copy = clone.GetComponent<EditablePrimitive>();
+        copy.CopyFrom(old);
+
+        SelectObject(copy);
     }
 
     public void DragOutObject(string type) {
@@ -173,6 +192,9 @@ public class UserEditingController : MonoBehaviour
         bool rotateRight = Input.GetKey(KeyCode.E);
         bool rotateLeft = Input.GetKey(KeyCode.Q);
 
+        bool copyClicked = (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.C)) || (Input.GetKey(KeyCode.C) && Input.GetKeyDown(KeyCode.LeftControl));
+        bool pasteClicked = (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.V)) || (Input.GetKey(KeyCode.V) && Input.GetKeyDown(KeyCode.LeftControl));
+
         if (isDraggingOutObject) {
             if (!leftHeld) {
                 FinishMove();
@@ -228,6 +250,15 @@ public class UserEditingController : MonoBehaviour
                     DeselectSelection();
                 }
             }
+
+            if (copyClicked) {
+                CopySelected();
+            }
+
+            if (pasteClicked && !rightHeld) {
+                PasteClipboard();
+            }
+
         } else {
             if (leftClicked && hasHitEditable) {
                 SelectObject(hitEditable);

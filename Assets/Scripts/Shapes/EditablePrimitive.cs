@@ -14,11 +14,9 @@ public abstract class EditablePrimitive : MonoBehaviour
     private bool isSelected;
     public bool isMoving;
 
-    protected Material validMaterial;
-    protected Material invalidMaterial;
-    protected Material selectedMaterial;
-
-    protected Transform lastPlaceState;
+    public Material validMaterial;
+    public Material invalidMaterial;
+    public Material selectedMaterial;
 
     public abstract void PlaceOnSurface(Vector3 point, Vector3 normal, bool keepRotation);
     public abstract void Scale(Vector3 newScale, Axis changedAxis, bool dir);
@@ -84,5 +82,10 @@ public abstract class EditablePrimitive : MonoBehaviour
             isValid = true;
         }
         UpdateMaterial();
+    }
+
+    public void CopyFrom(EditablePrimitive other) {
+        SetMaterials(other.validMaterial, other.invalidMaterial, other.selectedMaterial);
+        SetColor(other.curColor);
     }
 }
