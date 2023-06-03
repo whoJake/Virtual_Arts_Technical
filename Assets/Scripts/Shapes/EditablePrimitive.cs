@@ -4,8 +4,10 @@ using UnityEngine;
 
 public abstract class EditablePrimitive : MonoBehaviour
 {
-    protected bool isValid;
+    protected bool isValid = true;
     public bool IsValid { get { return isValid; } }
+
+    private int enteredColliderCount;
 
     private bool isSelected;
     public bool isMoving;
@@ -16,13 +18,7 @@ public abstract class EditablePrimitive : MonoBehaviour
 
     protected Transform lastPlaceState;
 
-    public abstract void UpdateValidity();
-    public abstract void PlaceOnSurface(Vector3 point, Vector3 normal, bool ignoreValidity);
-
-    public void Place(Vector3 point, bool ignoreValidity) {
-        transform.position = point;
-        if (!ignoreValidity) UpdateValidity();
-    }
+    public abstract void PlaceOnSurface(Vector3 point, Vector3 normal);
 
     protected void UpdateMaterial() {
         Material activeMaterial;
@@ -37,11 +33,13 @@ public abstract class EditablePrimitive : MonoBehaviour
 
     public void Select() {
         isSelected = true;
+        GetComponent<Collider>().isTrigger = true;
         UpdateMaterial();
     }
 
     public void Deselect() {
         isSelected = false;
+        GetComponent<Collider>().isTrigger = false;
         UpdateMaterial();
     }
 
@@ -49,5 +47,26 @@ public abstract class EditablePrimitive : MonoBehaviour
         validMaterial = validMat;
         invalidMaterial = invalidMat;
         selectedMaterial = selectedMat;
+    }
+
+    private void OnTriggerEnter(Collider other) {
+        if (!isSelected) return;
+        if (other.CompareTag("Ignore Validity"))
+            return;
+
+        enteredColliderCount++;
+        isValid = false;
+        UpdateMaterial();
+    }
+
+    private void OnTriggerExit(Collider other) {
+        if (!isSelected) return;
+
+        enteredColliderCount--;
+        if(enteredColliderCount <= 0) {
+            enteredColliderCount = 0;
+            isValid = true;
+        }
+        UpdateMaterial();
     }
 }

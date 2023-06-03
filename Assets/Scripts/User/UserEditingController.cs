@@ -23,7 +23,6 @@ public class UserEditingController : MonoBehaviour
     [SerializeField]
     private ScaleObjectController scaleObjectController;
 
-    private bool movingSelection;
     private bool isDraggingOutObject;
 
     public SelectPrimitive hotbarSelection;
@@ -61,11 +60,8 @@ public class UserEditingController : MonoBehaviour
     }
 
     void DeselectSelection() {
-        Debug.Log("Tried to deselect");
-        Debug.Log("is valid : " + currentSelection.IsValid + " collider enabled: " + currentSelection.GetComponent<Collider>().enabled + " is moving: " + currentSelection.isMoving);
         if (currentSelection) {
             if (!currentSelection.IsValid) return;
-            Debug.Log("Deselecting");
 
             currentSelection.Deselect();
             currentSelection = null;
@@ -74,35 +70,46 @@ public class UserEditingController : MonoBehaviour
     }
 
     void MoveSelection(RaycastHit hit) {
-        movingSelection = true;
         currentSelection.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
-        currentSelection.PlaceOnSurface(hit.point, hit.normal, ignoreValidity);
+        currentSelection.PlaceOnSurface(hit.point, hit.normal);
     }
 
     void FinishMove() {
         if (currentSelection.IsValid || ignoreValidity) {
             currentSelection.gameObject.layer = LayerMask.NameToLayer("Default");
-            movingSelection = false;
         }
     }
 
     EditablePrimitive CreateNewObject() {
         if (currentSelection) FinishMove();
+
+        GameObject tempShape; ;
+        EditablePrimitive result;
+
         switch (hotbarSelection) {
             case SelectPrimitive.None:
                 return null;
             case SelectPrimitive.Cube:
-                GameObject temp = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                temp.transform.parent = creationParent;
-                temp.tag = "EditableObject";
-                EditableCube script = temp.AddComponent<EditableCube>();
-                script.SetMaterials(objectValidMaterial, objectInvalidMaterial, objectSelectedMaterial);
-                return script;
+                tempShape = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                result = tempShape.AddComponent<EditableCube>();
+                result.SetMaterials(objectValidMaterial, objectInvalidMaterial, objectSelectedMaterial);
+                break;
             case SelectPrimitive.Sphere:
+                tempShape = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                //result = tempShape.AddComponent<EditableSphere>();
+                //result.SetMaterials(objectValidMaterial, objectInvalidMaterial, objectSelectedMaterial);
                 return null;
+                break;
             default:
                 return null;
         }
+
+        tempShape.transform.parent = creationParent;
+        tempShape.tag = "EditableObject";
+        Rigidbody detector = tempShape.AddComponent<Rigidbody>();
+        detector.isKinematic = true;
+        detector.useGravity = false;
+        return result;
     }
 
     void Update() {

@@ -141,7 +141,6 @@ public class ScaleObjectController : MonoBehaviour {
                     break;
             }
             controlling.transform.localScale = scale;
-            controlling.UpdateValidity();
 
             if (Input.GetMouseButtonUp(0)) {
                  changeHeld = false;
