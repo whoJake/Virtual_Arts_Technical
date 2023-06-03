@@ -1,25 +1,17 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
-public class ScaleObjectController : MonoBehaviour {
-    [SerializeField]
-    EditablePrimitive controlling;
-
-    [SerializeField]
-    float dragSensitivity;
+public class ScaleObjectController : MonoBehaviour 
+{
+    [SerializeField]    EditablePrimitive target;
 
     Transform xAxis, yAxis, zAxis;
     Transform posXDrag, posYDrag, posZDrag;
     Transform negXDrag, negYDrag, negZDrag;
 
-    public bool changeHeld;
+    bool isChangeHeld;
     Axis axisHeld;
-    bool dir;
     Transform heldPoint;
-
+    bool dirHeld;
 
     public void Awake() {
         xAxis = transform.Find("X");
@@ -36,7 +28,7 @@ public class ScaleObjectController : MonoBehaviour {
     }
 
     public void SelectObjectToControl(EditablePrimitive obj) {
-        controlling = obj;
+        target = obj;
     }
 
     public void UpdateAxisVisual(Axis axis, float scale) {
@@ -53,30 +45,30 @@ public class ScaleObjectController : MonoBehaviour {
                 axisPos = posXDrag;
                 axisNeg = negXDrag;
 
-                barLength = controlling.transform.localScale.x;
-                direction = controlling.transform.right;
+                barLength = target.transform.localScale.x;
+                direction = target.transform.right;
                 break;
             case Axis.Y:
                 axisBar = yAxis;
                 axisPos = posYDrag;
                 axisNeg = negYDrag;
 
-                barLength = controlling.transform.localScale.y;
-                direction = controlling.transform.up;
+                barLength = target.transform.localScale.y;
+                direction = target.transform.up;
                 break;
             case Axis.Z:
                 axisBar = zAxis;
                 axisPos = posZDrag;
                 axisNeg = negZDrag;
 
-                barLength = controlling.transform.localScale.z;
-                direction = controlling.transform.forward;
+                barLength = target.transform.localScale.z;
+                direction = target.transform.forward;
                 break;
             default:
-                throw new System.Exception("Lol");
+                throw new System.Exception("Why isn't there an axis set?");
         }
 
-        axisBar.position = controlling.transform.position;
+        axisBar.position = target.transform.position;
         axisBar.localScale = new Vector3(scale / 3f, barLength, scale / 3f);
         axisBar.up = direction;
 
@@ -88,31 +80,31 @@ public class ScaleObjectController : MonoBehaviour {
 
     void LateUpdate()
     {
-        bool active;
-        if(controlling == null) {
-            active = false;
-        } else {
-            active = true;
-        }
-        foreach(Transform child in transform) {
+        bool active = target != null;
+
+        foreach(Transform child in transform) 
             child.gameObject.SetActive(active);
-        }
-        if (!active) return;
-        if (Cursor.lockState != CursorLockMode.Locked) return;
+        
+
+        if (!active) 
+            return;
+        if (Cursor.lockState != CursorLockMode.Locked) 
+            return;
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if (changeHeld) {
-            Vector3 start = controlling.transform.position;
-            Vector3 end = heldPoint.position;
-            Vector3 startEnd = end - start;
+        if (isChangeHeld) {
+            Vector3 targetPos = target.transform.position;
+            Vector3 heldPos = heldPoint.position;
+            Vector3 vectorDifference = heldPos - targetPos;
 
-            float distanceToCheck = Mathf.Min(Vector3.Distance(Camera.main.transform.position, end), 75f);
+            float distanceToCheck = Mathf.Min(Vector3.Distance(Camera.main.transform.position, heldPos), 75f);
             Vector3 heldEndOfRay = ray.origin + ray.direction * distanceToCheck;
 
-            float scalar = Vector3.Dot(heldEndOfRay - start, startEnd) / Vector3.Dot(startEnd, startEnd);
+            //Scalar returns scalar of cursor worldPosition projected onto the line between targetPos and heldPos
+            float scalar = Vector3.Dot(heldEndOfRay - targetPos, vectorDifference) / Vector3.Dot(vectorDifference, vectorDifference);
 
-            Vector3 newScale = controlling.transform.localScale;
+            Vector3 newScale = target.transform.localScale;
             switch (axisHeld) {
                 case Axis.X:
                     newScale.x *= scalar;
@@ -124,22 +116,23 @@ public class ScaleObjectController : MonoBehaviour {
                     newScale.z *= scalar;
                     break;
             }
-            controlling.Scale(newScale, axisHeld, dir);
+            target.Scale(newScale, axisHeld, dirHeld);
 
-            if (Input.GetMouseButtonUp(0)) {
-                 changeHeld = false;
-            }
+            if (Input.GetMouseButtonUp(0)) 
+                isChangeHeld = false;
+            
         }
+        //See if user has grabbed onto an axis handle
         else if (Physics.Raycast(ray, out RaycastHit hit, 50f, LayerMask.GetMask("Scaler"))) {
             if (Input.GetMouseButtonDown(0)) {
-                Enum.TryParse(hit.transform.name[^1].ToString(), out axisHeld);
-                dir = hit.transform.name[..3].Equals("Pos");
-                changeHeld = true;
+                System.Enum.TryParse(hit.transform.name[^1].ToString(), out axisHeld);
+                dirHeld = hit.transform.name[..3].Equals("Pos");
+                isChangeHeld = true;
                 heldPoint = hit.transform;
             }
         }
 
-        float axisScale = Mathf.Clamp(Mathf.Min(controlling.transform.localScale.x, controlling.transform.localScale.y, controlling.transform.localScale.z), 1f, 3f) / 10f;
+        float axisScale = Mathf.Clamp(Mathf.Min(target.transform.localScale.x, target.transform.localScale.y, target.transform.localScale.z), 1f, 3f) / 10f;
         UpdateAxisVisual(Axis.X, axisScale);
         UpdateAxisVisual(Axis.Y, axisScale);
         UpdateAxisVisual(Axis.Z, axisScale);

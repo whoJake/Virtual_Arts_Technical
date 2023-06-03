@@ -4,16 +4,12 @@ using UnityEngine;
 
 public class UserCameraController : MonoBehaviour
 {
+    [SerializeField] private Vector2 mouseSensitivity;
+    [SerializeField] private bool invertYAxis;
+    [SerializeField] private Vector2 minMaxLookHeight;
+
     private Transform affectedTransform;
     private Vector2 lookDirection;
-
-    [SerializeField]
-    private Vector2 mouseSensitivity;
-    [SerializeField]
-    private bool invertYAxis;
-
-    [SerializeField]
-    private Vector2 minMaxLookHeight;
 
     private void Start() {
         Cursor.lockState = CursorLockMode.Locked;
@@ -21,7 +17,8 @@ public class UserCameraController : MonoBehaviour
     }
 
     private void LateUpdate() {
-        if (Cursor.lockState != CursorLockMode.Locked) return;
+        if (Cursor.lockState != CursorLockMode.Locked) 
+            return;
 
         Vector2 mouseMovement = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
 

@@ -4,16 +4,14 @@ using UnityEngine;
 
 public class UserMovementController : MonoBehaviour
 {
-    [SerializeField]
-    private float movementSpeed;
-
-    [SerializeField]
-    public float verticalSpeed;
+    [SerializeField]    private float movementSpeed;
+    [SerializeField]    public float verticalSpeed;
 
     void Update()
     {
         Vector2 inputDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         Vector3 movementDirection = transform.right * inputDirection.x + transform.forward * inputDirection.y;
+
         movementDirection.y = 0;
         movementDirection = movementDirection.normalized * movementSpeed;
 

@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class EditableSphere : EditablePrimitive {
+public class EditableSphere : EditablePrimitive 
+{
     public override void PlaceOnSurface(Vector3 point, Vector3 normal, bool keepRotation) {
         Vector3 placePosition = point + (normal * (transform.localScale.y / 2)) + (normal * 0.0001f);
         transform.position = placePosition;
@@ -37,7 +36,6 @@ public class EditableSphere : EditablePrimitive {
 
         //Clamp size to avoid negative scales :3
         newScale = Vector3.Max(Vector3.one * 0.2f, newScale);
-
         transform.localScale = newScale;
     }
 

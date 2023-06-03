@@ -1,15 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class EditablePrimitive : MonoBehaviour
+public abstract class EditablePrimitive : MonoBehaviour 
 {
     protected bool isValid = true;
     public bool IsValid { get { return isValid; } }
-
-    public Color curColor;
-
     private int enteredColliderCount;
+
+    public Color color;
 
     private bool isSelected;
     public bool isMoving;
@@ -20,28 +17,6 @@ public abstract class EditablePrimitive : MonoBehaviour
 
     public abstract void PlaceOnSurface(Vector3 point, Vector3 normal, bool keepRotation);
     public abstract void Scale(Vector3 newScale, Axis changedAxis, bool dir);
-
-    public void SetColor(Color color) {
-        validMaterial.SetColor("_ObjectColor", color);
-        invalidMaterial.SetColor("_ObjectColor", color);
-        selectedMaterial.SetColor("_ObjectColor", color);
-        curColor = color;
-    }
-
-    public void Rotate(float dir, float speed) {
-        transform.rotation *= Quaternion.Euler(0, speed * dir * Time.deltaTime, 0);
-    }
-
-    protected void UpdateMaterial() {
-        Material activeMaterial;
-        if (isSelected) {
-            activeMaterial = isValid ? selectedMaterial : invalidMaterial;
-        } else {
-            activeMaterial = isValid ? validMaterial : invalidMaterial;
-        }
-
-        GetComponent<MeshRenderer>().sharedMaterial = activeMaterial;
-    }
 
     public void Select() {
         isSelected = true;
@@ -55,10 +30,37 @@ public abstract class EditablePrimitive : MonoBehaviour
         UpdateMaterial();
     }
 
+    public void Rotate(float dir, float speed) {
+        transform.rotation *= Quaternion.Euler(0, speed * dir * Time.deltaTime, 0);
+    }
+
+    public void SetColor(Color _color) {
+        color = _color;
+        validMaterial.SetColor("_ObjectColor", color);
+        invalidMaterial.SetColor("_ObjectColor", color);
+        selectedMaterial.SetColor("_ObjectColor", color);
+    }
+
     public void SetMaterials(Material validMat, Material invalidMat, Material selectedMat) {
         validMaterial = new Material(validMat);
         invalidMaterial = new Material(invalidMat);
         selectedMaterial = new Material(selectedMat);
+    }
+
+    protected void UpdateMaterial() {
+        Material activeMaterial;
+        if (isSelected) {
+            activeMaterial = isValid ? selectedMaterial : invalidMaterial;
+        } else {
+            activeMaterial = isValid ? validMaterial : invalidMaterial;
+        }
+
+        GetComponent<MeshRenderer>().sharedMaterial = activeMaterial;
+    }
+
+    public void CopyFrom(EditablePrimitive other) {
+        SetMaterials(other.validMaterial, other.invalidMaterial, other.selectedMaterial);
+        SetColor(other.color);
     }
 
     private void OnTriggerEnter(Collider other) {
@@ -84,8 +86,4 @@ public abstract class EditablePrimitive : MonoBehaviour
         UpdateMaterial();
     }
 
-    public void CopyFrom(EditablePrimitive other) {
-        SetMaterials(other.validMaterial, other.invalidMaterial, other.selectedMaterial);
-        SetColor(other.curColor);
-    }
 }

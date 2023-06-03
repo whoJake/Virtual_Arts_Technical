@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class EditableCapsule : EditablePrimitive {
+public class EditableCapsule : EditablePrimitive 
+{
     public override void PlaceOnSurface(Vector3 point, Vector3 normal, bool keepRotation) {
         CapsuleCollider collider = GetComponent<CapsuleCollider>();
         float realHeight = Mathf.Max(collider.height * transform.localScale.y, collider.radius * transform.localScale.x * 2);
@@ -36,7 +35,6 @@ public class EditableCapsule : EditablePrimitive {
 
         //Clamp size to avoid negative scales :3
         newScale = Vector3.Max(Vector3.one * 0.2f, newScale);
-
         transform.localScale = newScale;
     }
 
