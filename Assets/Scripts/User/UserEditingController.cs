@@ -39,6 +39,9 @@ public class UserEditingController : MonoBehaviour
             case "Sphere":
                 hotbar = SelectPrimitive.Sphere;
                 break;
+            case "Capsule":
+                hotbar = SelectPrimitive.Capsule;
+                break;
             default:
                 hotbar = SelectPrimitive.None;
                 break;
@@ -102,6 +105,11 @@ public class UserEditingController : MonoBehaviour
                 result = tempShape.AddComponent<EditableSphere>();
                 result.SetMaterials(objectValidMaterial, objectInvalidMaterial, objectSelectedMaterial);
                 break;
+            case SelectPrimitive.Capsule:
+                tempShape = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                result = tempShape.AddComponent<EditableCapsule>();
+                result.SetMaterials(objectValidMaterial, objectInvalidMaterial, objectSelectedMaterial);
+                break;
             default:
                 return null;
         }
@@ -150,7 +158,7 @@ public class UserEditingController : MonoBehaviour
         //Already accounted for dragging out action so can leave from here
         if (!cursorLocked) return;
 
-        if (Input.GetKeyDown(KeyCode.Delete) && cursorLocked) {
+        if (Input.GetKeyDown(KeyCode.Delete)) {
             if (currentSelection) {
                 Destroy(currentSelection.gameObject);
                 currentSelection = null;
@@ -193,7 +201,8 @@ public class UserEditingController : MonoBehaviour
     public enum SelectPrimitive {
         None,
         Cube,
-        Sphere
+        Sphere,
+        Capsule
     }
 
 }

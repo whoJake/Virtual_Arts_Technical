@@ -19,6 +19,7 @@ public abstract class EditablePrimitive : MonoBehaviour
     protected Transform lastPlaceState;
 
     public abstract void PlaceOnSurface(Vector3 point, Vector3 normal);
+    public abstract void Scale(Vector3 newScale, Axis changedAxis, bool dir);
 
     protected void UpdateMaterial() {
         Material activeMaterial;

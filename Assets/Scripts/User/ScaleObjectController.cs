@@ -17,7 +17,7 @@ public class ScaleObjectController : MonoBehaviour {
 
     public bool changeHeld;
     Axis axisHeld;
-    float dir;
+    bool dir;
     Transform heldPoint;
 
 
@@ -37,13 +37,6 @@ public class ScaleObjectController : MonoBehaviour {
 
     public void SelectObjectToControl(EditablePrimitive obj) {
         controlling = obj;
-    }
-
-    public enum Axis {
-        X,
-        Y,
-        Z,
-        None
     }
 
     public void UpdateAxisVisual(Axis axis, float scale) {
@@ -119,37 +112,19 @@ public class ScaleObjectController : MonoBehaviour {
 
             float scalar = Vector3.Dot(heldEndOfRay - start, startEnd) / Vector3.Dot(startEnd, startEnd);
 
-            float distanceDragged;
-            Vector3 scale = controlling.transform.localScale;
-            float changedScale = 1;
-
+            Vector3 newScale = controlling.transform.localScale;
             switch (axisHeld) {
                 case Axis.X:
-                    distanceDragged = scale.x - (scale.x * scalar);
-                    scale.x *= scalar;
-                    changedScale = scale.x;
-                    controlling.transform.position += (controlling.transform.right * distanceDragged * dir) / 2f;
+                    newScale.x *= scalar;
                     break;
                 case Axis.Y:
-                    distanceDragged = scale.y - (scale.y * scalar);
-                    scale.y *= scalar;
-                    changedScale = scale.y;
-                    controlling.transform.position += (controlling.transform.up * distanceDragged * dir) / 2f;
-
+                    newScale.y *= scalar;
                     break;
                 case Axis.Z:
-                    distanceDragged = scale.z - (scale.z * scalar);
-                    scale.z *= scalar;
-                    changedScale = scale.z;
-                    controlling.transform.position += (controlling.transform.forward * distanceDragged * dir) / 2f;
+                    newScale.z *= scalar;
                     break;
             }
-
-            if(controlling.GetType() == typeof(EditableSphere)) {
-                controlling.transform.localScale = Vector3.one * changedScale;
-            } else {
-                controlling.transform.localScale = scale;
-            }
+            controlling.Scale(newScale, axisHeld, dir);
 
             if (Input.GetMouseButtonUp(0)) {
                  changeHeld = false;
@@ -158,7 +133,7 @@ public class ScaleObjectController : MonoBehaviour {
         else if (Physics.Raycast(ray, out RaycastHit hit, 50f, LayerMask.GetMask("Scaler"))) {
             if (Input.GetMouseButtonDown(0)) {
                 Enum.TryParse(hit.transform.name[^1].ToString(), out axisHeld);
-                dir = hit.transform.name[..3].Equals("Pos") ? -1 : 1;
+                dir = hit.transform.name[..3].Equals("Pos");
                 changeHeld = true;
                 heldPoint = hit.transform;
             }
@@ -169,4 +144,11 @@ public class ScaleObjectController : MonoBehaviour {
         UpdateAxisVisual(Axis.Y, axisScale);
         UpdateAxisVisual(Axis.Z, axisScale);
     }
+}
+
+public enum Axis {
+    X,
+    Y,
+    Z,
+    None
 }

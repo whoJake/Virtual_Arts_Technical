@@ -2,9 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EditableSphere : EditablePrimitive {
+public class EditableCapsule : EditablePrimitive {
     public override void PlaceOnSurface(Vector3 point, Vector3 normal) {
-        Vector3 placePosition = point + (normal * (transform.localScale.y / 2)) + (normal * 0.0001f);
+        CapsuleCollider collider = GetComponent<CapsuleCollider>();
+        float realHeight = Mathf.Max(collider.height * transform.localScale.y, collider.radius * transform.localScale.x * 2);
+
+        Vector3 placePosition = point + (normal * (realHeight / 2)) + (normal * 0.0001f);
         transform.position = placePosition;
         transform.up = normal;
     }
@@ -16,20 +19,16 @@ public class EditableSphere : EditablePrimitive {
             case Axis.X:
                 change = transform.localScale.x - newScale.x;
                 transform.position += (change * dirMultiplier / 2f) * transform.right;
-                newScale.y = newScale.x;
                 newScale.z = newScale.x;
                 break;
             case Axis.Y:
                 change = transform.localScale.y - newScale.y;
                 transform.position += (change * dirMultiplier / 2f) * transform.up;
-                newScale.x = newScale.y;
-                newScale.z = newScale.y;
                 break;
             case Axis.Z:
                 change = transform.localScale.z - newScale.z;
                 transform.position += (change * dirMultiplier / 2f) * transform.forward;
                 newScale.x = newScale.z;
-                newScale.y = newScale.z;
                 break;
             default:
                 return;
@@ -42,3 +41,4 @@ public class EditableSphere : EditablePrimitive {
     }
 
 }
+
