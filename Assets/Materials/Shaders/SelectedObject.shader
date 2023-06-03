@@ -2,58 +2,35 @@ Shader "Custom/Selected"
 {
     Properties
     {
-        _MainTex("Texture", 2D) = "white"{}
-        _SelectedColor("Selected Color", Color) = (1, 0, 0, 1)
+        _MainTex("Texture", 2D) = "white" {}
+        _ObjectColor("Object Color", Color) = (1, 1, 1)
+        _SelectedColor("Selected Color", Color) = (1, 0.5, 0)
     }
-    SubShader
+        SubShader
     {
-        Tags { "RenderType"="Overlay" }
+        Tags { "RenderType" = "Opaque" }
         LOD 100
 
-        Blend SrcAlpha OneMinusSrcAlpha
-        Cull Off
-        ZWrite Off
-        ZTest Off
-        
-        Pass
-        {
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
+        CGPROGRAM
 
-            #include "UnityCG.cginc"
+        #pragma surface surf Lambert
+        #pragma target 3.5
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
+        struct Input {
+            float2 uv_MainTex;
+        };
 
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                float4 vertex : SV_POSITION;
-            };
+        sampler2D _MainTex;
+        fixed3 _ObjectColor;
+        fixed3 _SelectedColor;
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
-            fixed4 _SelectedColor;
-
-            v2f vert(appdata v)
-            {
-                v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                return o;
-            }
-
-            fixed4 frag(v2f i) : SV_Target
-            {
-                fixed4 col = tex2D(_MainTex, i.uv) * _SelectedColor;
-                return col;
-            }
-
-            ENDCG
+        void surf(Input IN, inout SurfaceOutput o) {
+            float texLerp = tex2D(_MainTex, IN.uv_MainTex);
+            
+            o.Albedo = lerp(_SelectedColor, _ObjectColor, texLerp);
         }
+
+        ENDCG
     }
+        Fallback "Diffuse"
 }

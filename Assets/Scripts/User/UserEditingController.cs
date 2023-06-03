@@ -24,14 +24,26 @@ public class UserEditingController : MonoBehaviour
     private Material objectFresnelSelectedMaterial;
 
     [SerializeField]
+    private Material objectFresnelInvalidMaterial;
+
+    [SerializeField]
     private ScaleObjectController scaleObjectController;
 
     private bool isDraggingOutObject;
 
     public SelectPrimitive hotbarSelection;
+    private Color currentColor = Color.white;
 
     [SerializeField]
     private EditablePrimitive currentSelection;
+
+    public void ChangeColor(Color color) {
+        if (currentSelection) {
+            currentSelection.SetColor(color);
+        }
+
+        currentColor = color;
+    }
 
     public void DragOutObject(string type) {
         SelectPrimitive hotbar;
@@ -106,17 +118,18 @@ public class UserEditingController : MonoBehaviour
             case SelectPrimitive.Sphere:
                 tempShape = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 result = tempShape.AddComponent<EditableSphere>();
-                result.SetMaterials(objectValidMaterial, objectInvalidMaterial, objectFresnelSelectedMaterial);
+                result.SetMaterials(objectValidMaterial, objectFresnelInvalidMaterial, objectFresnelSelectedMaterial);
                 break;
             case SelectPrimitive.Capsule:
                 tempShape = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                 result = tempShape.AddComponent<EditableCapsule>();
-                result.SetMaterials(objectValidMaterial, objectInvalidMaterial, objectFresnelSelectedMaterial);
+                result.SetMaterials(objectValidMaterial, objectFresnelInvalidMaterial, objectFresnelSelectedMaterial);
                 break;
             default:
                 return null;
         }
 
+        result.SetColor(currentColor);
         tempShape.transform.parent = creationParent;
         tempShape.tag = "EditableObject";
         Rigidbody detector = tempShape.AddComponent<Rigidbody>();

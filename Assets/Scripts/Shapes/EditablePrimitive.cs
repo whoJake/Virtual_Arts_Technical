@@ -21,6 +21,12 @@ public abstract class EditablePrimitive : MonoBehaviour
     public abstract void PlaceOnSurface(Vector3 point, Vector3 normal);
     public abstract void Scale(Vector3 newScale, Axis changedAxis, bool dir);
 
+    public void SetColor(Color color) {
+        validMaterial.SetColor("_ObjectColor", color);
+        invalidMaterial.SetColor("_ObjectColor", color);
+        selectedMaterial.SetColor("_ObjectColor", color);
+    }
+
     protected void UpdateMaterial() {
         Material activeMaterial;
         if (isSelected) {
@@ -45,9 +51,9 @@ public abstract class EditablePrimitive : MonoBehaviour
     }
 
     public void SetMaterials(Material validMat, Material invalidMat, Material selectedMat) {
-        validMaterial = validMat;
-        invalidMaterial = invalidMat;
-        selectedMaterial = selectedMat;
+        validMaterial = new Material(validMat);
+        invalidMaterial = new Material(invalidMat);
+        selectedMaterial = new Material(selectedMat);
     }
 
     private void OnTriggerEnter(Collider other) {
