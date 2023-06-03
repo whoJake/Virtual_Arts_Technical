@@ -156,7 +156,7 @@ public class UserEditingController : MonoBehaviour
     }
 
     void Update() {
-        if (Input.GetKey(KeyCode.R) || isDraggingOutObject) {
+        if (Input.GetKey(KeyCode.LeftAlt) || isDraggingOutObject) {
             Cursor.lockState = CursorLockMode.None;
         } else {
             Cursor.lockState = CursorLockMode.Locked;
