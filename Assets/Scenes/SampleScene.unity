@@ -726,18 +726,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c81d3198175982469fe63d9830c6183, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentSelection: {fileID: 0}
+  scaleObjectController: {fileID: 1230057016}
+  currentColor: {r: 1, g: 1, b: 1, a: 1}
+  colorPicker: {fileID: 172360021}
+  rotationSpeed: 90
   creationParent: {fileID: 1946770287}
-  ignoreValidity: 0
   objectValidMaterial: {fileID: 2100000, guid: 3a7fbdaf35d65f349bcadcfcb97d704d, type: 2}
   objectInvalidMaterial: {fileID: 2100000, guid: 52f6d8637f34ecb41804ab3c5950d527, type: 2}
   objectSelectedMaterial: {fileID: 2100000, guid: 8b7e3dd8bf90cd74082fcf5ca8c98a28, type: 2}
   objectFresnelSelectedMaterial: {fileID: 2100000, guid: 8bfd677b5afaeaf408bba5c8c866d066, type: 2}
   objectFresnelInvalidMaterial: {fileID: 2100000, guid: cd983ed249368e74583390484ec53cef, type: 2}
-  scaleObjectController: {fileID: 1230057016}
-  colorPicker: {fileID: 172360021}
-  rotationSpeed: 90
-  currentColor: {r: 1, g: 1, b: 1, a: 1}
-  currentSelection: {fileID: 0}
 --- !u!1 &172360017
 GameObject:
   m_ObjectHideFlags: 0
@@ -829,11 +828,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5feb9cd3c37833408dae93a626ef206, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boundsReference: {fileID: 1675357693}
+  pickerRect: {fileID: 1675357693}
   user: {fileID: 136433913}
-  texReference: {fileID: 2800000, guid: e579bc40c004a3f4ca6a8c775e341dc3, type: 3}
-  pickerExtension: {fileID: 1149972929}
-  colourDisplay: {fileID: 1355334571}
+  textureReference: {fileID: 2800000, guid: e579bc40c004a3f4ca6a8c775e341dc3, type: 3}
+  pickerFoldout: {fileID: 1149972929}
+  colourPreview: {fileID: 1355334571}
 --- !u!1 &373496604
 GameObject:
   m_ObjectHideFlags: 0
@@ -3589,9 +3588,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23de0219dc58a1641ad0cb1188733d62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controlling: {fileID: 0}
-  dragSensitivity: 0.2
-  changeHeld: 0
+  target: {fileID: 0}
 --- !u!1 &1355334567
 GameObject:
   m_ObjectHideFlags: 0
