@@ -21,6 +21,9 @@ public class UserEditingController : MonoBehaviour
     private Material objectSelectedMaterial;
 
     [SerializeField]
+    private Material objectFresnelSelectedMaterial;
+
+    [SerializeField]
     private ScaleObjectController scaleObjectController;
 
     private bool isDraggingOutObject;
@@ -103,12 +106,12 @@ public class UserEditingController : MonoBehaviour
             case SelectPrimitive.Sphere:
                 tempShape = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 result = tempShape.AddComponent<EditableSphere>();
-                result.SetMaterials(objectValidMaterial, objectInvalidMaterial, objectSelectedMaterial);
+                result.SetMaterials(objectValidMaterial, objectInvalidMaterial, objectFresnelSelectedMaterial);
                 break;
             case SelectPrimitive.Capsule:
                 tempShape = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                 result = tempShape.AddComponent<EditableCapsule>();
-                result.SetMaterials(objectValidMaterial, objectInvalidMaterial, objectSelectedMaterial);
+                result.SetMaterials(objectValidMaterial, objectInvalidMaterial, objectFresnelSelectedMaterial);
                 break;
             default:
                 return null;
