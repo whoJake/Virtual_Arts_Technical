@@ -31,7 +31,9 @@ public class UserEditingController : MonoBehaviour
 
     private bool isDraggingOutObject;
 
-    public SelectPrimitive hotbarSelection;
+    private SelectPrimitive hotbarSelection;
+
+    [SerializeField]
     private Color currentColor = Color.white;
 
     [SerializeField]
@@ -43,6 +45,14 @@ public class UserEditingController : MonoBehaviour
         }
 
         currentColor = color;
+    }
+
+    public void DeleteSelected() {
+        if (currentSelection) {
+            Destroy(currentSelection.gameObject);
+            currentSelection = null;
+            scaleObjectController.SelectObjectToControl(null);
+        }
     }
 
     public void DragOutObject(string type) {
@@ -175,11 +185,7 @@ public class UserEditingController : MonoBehaviour
         if (!cursorLocked) return;
 
         if (Input.GetKeyDown(KeyCode.Delete)) {
-            if (currentSelection) {
-                Destroy(currentSelection.gameObject);
-                currentSelection = null;
-                scaleObjectController.SelectObjectToControl(null);
-            }
+            DeleteSelected();
         }
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
