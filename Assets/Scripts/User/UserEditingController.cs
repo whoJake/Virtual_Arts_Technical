@@ -31,7 +31,7 @@ public class UserEditingController : MonoBehaviour
     private EditablePrimitive currentSelection;
 
     public void DragOutObject(string type) {
-        SelectPrimitive hotbar = SelectPrimitive.None;
+        SelectPrimitive hotbar;
         switch (type) {
             case "Cube":
                 hotbar = SelectPrimitive.Cube;
@@ -39,11 +39,14 @@ public class UserEditingController : MonoBehaviour
             case "Sphere":
                 hotbar = SelectPrimitive.Sphere;
                 break;
+            default:
+                hotbar = SelectPrimitive.None;
+                break;
         }
+        hotbarSelection = hotbar;
 
         EditablePrimitive obj = CreateNewObject();
         SelectObject(obj);
-        hotbarSelection = hotbar;
         isDraggingOutObject = true;
     }
 
@@ -96,9 +99,8 @@ public class UserEditingController : MonoBehaviour
                 break;
             case SelectPrimitive.Sphere:
                 tempShape = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                //result = tempShape.AddComponent<EditableSphere>();
-                //result.SetMaterials(objectValidMaterial, objectInvalidMaterial, objectSelectedMaterial);
-                return null;
+                result = tempShape.AddComponent<EditableSphere>();
+                result.SetMaterials(objectValidMaterial, objectInvalidMaterial, objectSelectedMaterial);
                 break;
             default:
                 return null;

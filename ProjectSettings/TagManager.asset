@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - EditableObject
+  - Ignore Validity
   layers:
   - Default
   - TransparentFX

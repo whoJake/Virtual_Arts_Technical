@@ -121,26 +121,35 @@ public class ScaleObjectController : MonoBehaviour {
 
             float distanceDragged;
             Vector3 scale = controlling.transform.localScale;
+            float changedScale = 1;
 
             switch (axisHeld) {
                 case Axis.X:
                     distanceDragged = scale.x - (scale.x * scalar);
                     scale.x *= scalar;
+                    changedScale = scale.x;
                     controlling.transform.position += (controlling.transform.right * distanceDragged * dir) / 2f;
                     break;
                 case Axis.Y:
                     distanceDragged = scale.y - (scale.y * scalar);
                     scale.y *= scalar;
-                   controlling.transform.position += (controlling.transform.up * distanceDragged * dir) / 2f;
+                    changedScale = scale.y;
+                    controlling.transform.position += (controlling.transform.up * distanceDragged * dir) / 2f;
 
                     break;
                 case Axis.Z:
                     distanceDragged = scale.z - (scale.z * scalar);
                     scale.z *= scalar;
+                    changedScale = scale.z;
                     controlling.transform.position += (controlling.transform.forward * distanceDragged * dir) / 2f;
                     break;
             }
-            controlling.transform.localScale = scale;
+
+            if(controlling.GetType() == typeof(EditableSphere)) {
+                controlling.transform.localScale = Vector3.one * changedScale;
+            } else {
+                controlling.transform.localScale = scale;
+            }
 
             if (Input.GetMouseButtonUp(0)) {
                  changeHeld = false;

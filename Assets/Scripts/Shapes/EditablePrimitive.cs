@@ -62,9 +62,11 @@ public abstract class EditablePrimitive : MonoBehaviour
     private void OnTriggerExit(Collider other) {
         if (!isSelected) return;
 
+        if (other.CompareTag("Ignore Validity"))
+            return;
+
         enteredColliderCount--;
-        if(enteredColliderCount <= 0) {
-            enteredColliderCount = 0;
+        if(enteredColliderCount == 0) {
             isValid = true;
         }
         UpdateMaterial();
