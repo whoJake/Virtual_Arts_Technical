@@ -20,7 +20,7 @@ public abstract class EditablePrimitive : MonoBehaviour
 
     protected Transform lastPlaceState;
 
-    public abstract void PlaceOnSurface(Vector3 point, Vector3 normal);
+    public abstract void PlaceOnSurface(Vector3 point, Vector3 normal, bool keepRotation);
     public abstract void Scale(Vector3 newScale, Axis changedAxis, bool dir);
 
     public void SetColor(Color color) {
@@ -28,6 +28,10 @@ public abstract class EditablePrimitive : MonoBehaviour
         invalidMaterial.SetColor("_ObjectColor", color);
         selectedMaterial.SetColor("_ObjectColor", color);
         curColor = color;
+    }
+
+    public void Rotate(float dir, float speed) {
+        transform.rotation *= Quaternion.Euler(0, speed * dir * Time.deltaTime, 0);
     }
 
     protected void UpdateMaterial() {

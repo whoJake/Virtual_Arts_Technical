@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class EditableCube : EditablePrimitive {
 
-    public override void PlaceOnSurface(Vector3 point, Vector3 normal) {
+    public override void PlaceOnSurface(Vector3 point, Vector3 normal, bool keepRotation) {
         Vector3 placePosition = point + (normal * (transform.localScale.y / 2)) + (normal * 0.0001f);
         transform.position = placePosition;
-        transform.up = normal;
+        if (keepRotation) transform.rotation.SetLookRotation(transform.forward, normal);
+        else transform.up = normal;
     }
 
     public override void Scale(Vector3 newScale, Axis changedAxis, bool dir) {

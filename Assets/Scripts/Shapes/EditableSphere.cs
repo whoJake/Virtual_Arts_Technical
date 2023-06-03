@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EditableSphere : EditablePrimitive {
-    public override void PlaceOnSurface(Vector3 point, Vector3 normal) {
+    public override void PlaceOnSurface(Vector3 point, Vector3 normal, bool keepRotation) {
         Vector3 placePosition = point + (normal * (transform.localScale.y / 2)) + (normal * 0.0001f);
         transform.position = placePosition;
         transform.up = normal;

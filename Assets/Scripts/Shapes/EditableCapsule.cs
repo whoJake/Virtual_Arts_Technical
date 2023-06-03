@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EditableCapsule : EditablePrimitive {
-    public override void PlaceOnSurface(Vector3 point, Vector3 normal) {
+    public override void PlaceOnSurface(Vector3 point, Vector3 normal, bool keepRotation) {
         CapsuleCollider collider = GetComponent<CapsuleCollider>();
         float realHeight = Mathf.Max(collider.height * transform.localScale.y, collider.radius * transform.localScale.x * 2);
 

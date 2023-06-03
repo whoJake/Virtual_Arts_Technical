@@ -27,7 +27,7 @@ Shader "Custom/FresnelInvalid"
 
         void surf(Input IN, inout SurfaceOutput o) {
             float fresnel = dot(IN.viewDir, IN.worldNormal);
-            if (fresnel < 0.4) fresnel = 0;
+            if (fresnel < 0.6) fresnel = 0;
             else fresnel = 1;
             
             fixed3 flashColor = lerp(_FlashColor, _ObjectColor, fresnel);

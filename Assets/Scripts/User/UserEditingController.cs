@@ -32,6 +32,9 @@ public class UserEditingController : MonoBehaviour
     [SerializeField]
     private ColorPickerHandler colorPicker;
 
+    [SerializeField]
+    private float rotationSpeed;
+
     private bool isDraggingOutObject;
 
     private SelectPrimitive hotbarSelection;
@@ -104,9 +107,9 @@ public class UserEditingController : MonoBehaviour
         }
     }
 
-    void MoveSelection(RaycastHit hit) {
+    void MoveSelection(RaycastHit hit, bool keepRotation) {
         currentSelection.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
-        currentSelection.PlaceOnSurface(hit.point, hit.normal);
+        currentSelection.PlaceOnSurface(hit.point, hit.normal, keepRotation);
     }
 
     void FinishMove() {
@@ -167,6 +170,9 @@ public class UserEditingController : MonoBehaviour
         bool leftHeld = Input.GetMouseButton(0);
         bool rightHeld = Input.GetMouseButton(1);
 
+        bool rotateRight = Input.GetKey(KeyCode.E);
+        bool rotateLeft = Input.GetKey(KeyCode.Q);
+
         if (isDraggingOutObject) {
             if (!leftHeld) {
                 FinishMove();
@@ -181,7 +187,7 @@ public class UserEditingController : MonoBehaviour
             } else {
                 Ray dragRay = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(dragRay, out RaycastHit draghit, 25f, ~LayerMask.GetMask("Ignore Raycast", "Overlay", "Scaler"))) {
-                    MoveSelection(draghit);
+                    MoveSelection(draghit, false);
                 }
             }
         }
@@ -202,7 +208,13 @@ public class UserEditingController : MonoBehaviour
         //When an item is selected
         if (currentSelection) {
             if (rightHeld && hitActiveObject) {
-                MoveSelection(activeHit);
+                float rotateDir = 0;
+                if (rotateRight) rotateDir++;
+                if (rotateLeft) rotateDir--;
+
+                currentSelection.Rotate(rotateDir, rotationSpeed);
+
+                MoveSelection(activeHit, !Input.GetKey(KeyCode.LeftControl));
             } else if (!rightHeld) {
                 FinishMove();
             }
