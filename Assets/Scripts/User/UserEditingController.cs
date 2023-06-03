@@ -29,6 +29,9 @@ public class UserEditingController : MonoBehaviour
     [SerializeField]
     private ScaleObjectController scaleObjectController;
 
+    [SerializeField]
+    private ColorPickerHandler colorPicker;
+
     private bool isDraggingOutObject;
 
     private SelectPrimitive hotbarSelection;
@@ -88,6 +91,7 @@ public class UserEditingController : MonoBehaviour
         obj.Select();
         currentSelection = obj;
         scaleObjectController.SelectObjectToControl(currentSelection);
+        colorPicker.SetColor(currentSelection.curColor);
     }
 
     void DeselectSelection() {

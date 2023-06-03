@@ -7,6 +7,8 @@ public abstract class EditablePrimitive : MonoBehaviour
     protected bool isValid = true;
     public bool IsValid { get { return isValid; } }
 
+    public Color curColor;
+
     private int enteredColliderCount;
 
     private bool isSelected;
@@ -25,6 +27,7 @@ public abstract class EditablePrimitive : MonoBehaviour
         validMaterial.SetColor("_ObjectColor", color);
         invalidMaterial.SetColor("_ObjectColor", color);
         selectedMaterial.SetColor("_ObjectColor", color);
+        curColor = color;
     }
 
     protected void UpdateMaterial() {
